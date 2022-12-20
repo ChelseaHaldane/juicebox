@@ -185,14 +185,12 @@ async function createTags(tagList) {
 
 async function createPostTag(postId, tagId) {
   try {
-    const { rows } = await client.query(
+    await client.query(
       `INSERT INTO post_tags("postId", "tagId")
     VALUES ($1, $2)
-    ON CONFLICT ("postId", "tagId") DO NOTHING
-    RETURNING *;`,
+    ON CONFLICT ("postId", "tagId") DO NOTHING;`,
       [postId, tagId]
     );
-    return rows;
   } catch (error) {
     throw error;
   }
