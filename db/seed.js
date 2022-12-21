@@ -13,6 +13,7 @@ const {
   addTagsToPost,
   getPostById,
   createInitialTags,
+  getPostsByTagName,
 } = require("./index");
 
 //this function should call a query which drops all tables from our database
@@ -205,6 +206,10 @@ async function testDB() {
     // console.log("Calling createInitialTags");
     // const makeInitialTags = await createInitialTags();
     // console.log("Results: ", makeInitialTags);
+
+    console.log("Calling getPostsByTagName with #happy");
+    const postsWithHappy = await getPostsByTagName("#happy");
+    console.log("Result:", postsWithHappy);
 
     console.log("Finished database tests!");
   } catch (error) {
