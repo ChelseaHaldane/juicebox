@@ -12,6 +12,7 @@ const {
   createPostTag,
   addTagsToPost,
   getPostById,
+  createInitialTags,
 } = require("./index");
 
 //this function should call a query which drops all tables from our database
@@ -134,6 +135,7 @@ async function rebuildDB() {
     await createTables();
     await createInitialUsers();
     await createInitialPosts();
+    await createInitialTags();
   } catch (error) {
     console.log("Error during rebuildDB");
     throw error;
@@ -174,22 +176,26 @@ async function testDB() {
     const authorPost = await getPostsByUser(1);
     console.log("Result: ", authorPost);
 
-    console.log("Calling createTags");
-    const callingCreateTag = await createTags([
-      { name: "Bad day" },
-      {
-        name: "Good day",
-      },
-    ]);
-    console.log("Results: ", callingCreateTag);
+    // console.log("Calling createTags");
+    // const callingCreateTag = await createTags([
+    //   { name: "Bad day" },
+    //   {
+    //     name: "Good day",
+    //   },
+    // ]);
+    // console.log("Results: ", callingCreateTag);
 
-    console.log("Calling createPostTag");
-    const postTagRows = await createPostTag(1, 1);
-    console.log("Result: ", postTagRows);
+    // console.log("Calling createPostTag");
+    // const postTagRows = await createPostTag(1, 1);
+    // console.log("Result: ", postTagRows);
 
     // console.log("Calling addTagsToPost");
     // const tagToPost = await addTagsToPost(1, [1]);
     // console.log("Result: ", tagToPost);
+
+    // console.log("Calling createInitialTags");
+    // const makeInitialTags = await createInitialTags();
+    // console.log("Results: ", makeInitialTags);
 
     console.log("Finished database tests!");
   } catch (error) {

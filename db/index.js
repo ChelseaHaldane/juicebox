@@ -125,12 +125,16 @@ async function updatePost(id, fields = {}) {
 
 async function getAllPosts() {
   try {
-    const { rows } = await client.query(`
-    SELECT *
+    const { rows: postIds } = await client.query(`
+    SELECT id
     FROM posts
     `);
 
-    return rows;
+    const posts = await Promise.all(
+      postIds.map((post) => getPostById(post.id))
+    );
+
+    return posts;
   } catch (error) {
     throw error;
   }
@@ -139,11 +143,16 @@ async function getAllPosts() {
 async function getPostsByUser(userId) {
   try {
     console.log(userId, "GetPostsByUser console log");
-    const { rows } = await client.query(`
-    SELECT *
+    const { rows: postIds } = await client.query(`
+    SELECT id
     FROM posts
     WHERE "authorId"=${userId};`);
-    return rows;
+
+    const posts = await Promise.all(
+      postIds.map((post) => getPostById(post.id))
+    );
+
+    return posts;
   } catch (error) {
     throw error;
   }
@@ -164,7 +173,7 @@ async function createTags(tagList) {
       VALUES (${insertValues})
       ON CONFLICT (name) DO NOTHING;
       `,
-      tagList.map((tag) => tag.name)
+      tagList
     );
 
     const { rows } = await client.query(
@@ -173,7 +182,7 @@ async function createTags(tagList) {
     WHERE name
     IN (${selectValues})
     `,
-      tagList.map((tag) => tag.name)
+      tagList
     );
 
     return rows;
@@ -223,7 +232,8 @@ async function getPostById(postId) {
     const { rows: tags } = await client.query(
       `SELECT tags.*
     FROM tags
-    JOIN posts_tags."postId"=$1;`,
+    JOIN post_tags ON tags.id=post_tags."tagId"
+    WHERE post_tags."postId"=$1;`,
       [postId]
     );
 
@@ -246,6 +256,30 @@ async function getPostById(postId) {
     throw error;
   }
 }
+async function createInitialTags() {
+  try {
+    console.log("Starting to create tags...");
+
+    const [happy, sad, inspo, catman] = await createTags([
+      "#happy",
+      "#worst-day-ever",
+      "#youcandoanything",
+      "#catmandoeverything",
+    ]);
+
+    const [postOne, postTwo, postThree] = await getAllPosts();
+
+    await addTagsToPost(postOne.id, [happy, inspo]);
+    await addTagsToPost(postTwo.id, [sad, inspo]);
+    await addTagsToPost(postThree.id, [happy, catman, inspo]);
+
+    console.log("Finished creating tags!");
+  } catch (error) {
+    console.error("Error creating tags!", error);
+    throw error;
+  }
+}
+
 module.exports = {
   client,
   getAllUsers,
@@ -261,4 +295,5 @@ module.exports = {
   createPostTag,
   addTagsToPost,
   getPostById,
+  createInitialTags,
 };
