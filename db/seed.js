@@ -8,11 +8,6 @@ const {
   updatePost,
   getAllPosts,
   getPostsByUser,
-  createTags,
-  createPostTag,
-  addTagsToPost,
-  getPostById,
-  createInitialTags,
   getPostsByTagName,
 } = require("./index");
 
@@ -185,27 +180,6 @@ async function testDB() {
     console.log("Calling getPostsByUser");
     const authorPost = await getPostsByUser(1);
     console.log("Result: ", authorPost);
-
-    // console.log("Calling createTags");
-    // const callingCreateTag = await createTags([
-    //   { name: "Bad day" },
-    //   {
-    //     name: "Good day",
-    //   },
-    // ]);
-    // console.log("Results: ", callingCreateTag);
-
-    // console.log("Calling createPostTag");
-    // const postTagRows = await createPostTag(1, 1);
-    // console.log("Result: ", postTagRows);
-
-    // console.log("Calling addTagsToPost");
-    // const tagToPost = await addTagsToPost(1, [1]);
-    // console.log("Result: ", tagToPost);
-
-    // console.log("Calling createInitialTags");
-    // const makeInitialTags = await createInitialTags();
-    // console.log("Results: ", makeInitialTags);
 
     console.log("Calling getPostsByTagName with #happy");
     const postsWithHappy = await getPostsByTagName("#happy");
