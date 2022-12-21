@@ -78,7 +78,7 @@ async function getUserById(userId) {
   }
 }
 
-async function createPost({ authorId, title, content }) {
+async function createPost({ authorId, title, content, tags = [] }) {
   try {
     const {
       rows: [post],
@@ -90,34 +90,52 @@ async function createPost({ authorId, title, content }) {
       [authorId, title, content]
     );
 
-    return post;
+    const tagList = await createTags(tags);
+
+    return await addTagsToPost(post.id, tagList);
   } catch (error) {
     throw error;
   }
 }
 
-async function updatePost(id, fields = {}) {
+async function updatePost(postId, fields = {}) {
+  const { tags } = fields;
+  delete fields.tags;
+
   const setString = Object.keys(fields)
     .map((key, index) => `"${key}"=$${index + 1}`)
     .join(", ");
 
-  if (setString.length === 0) {
-    return;
-  }
-
   try {
-    const {
-      rows: [post],
-    } = await client.query(
-      `
+    if (setString.length > 0) {
+      await client.query(
+        `
     UPDATE posts
     SET ${setString}
-    WHERE id=${id}
+    WHERE id=${postId}
     RETURNING *;`,
-      Object.values(fields)
+        Object.values(fields)
+      );
+    }
+
+    if (tags === undefined) {
+      return await getPostById(postId);
+    }
+
+    const tagList = await createTags(tags);
+    const tagListIdString = tagList.map((tag) => `${tag.id}`).join(", ");
+
+    await client.query(
+      `DELETE FROM post_tags 
+      WHERE "tagId" 
+      NOT IN (${tagListIdString}) 
+      AND "postId"=$1;`,
+      [postId]
     );
 
-    return post;
+    await addTagsToPost(postId, tagList);
+
+    return await getPostById(postId);
   } catch (error) {
     throw error;
   }
