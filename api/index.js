@@ -6,8 +6,7 @@ const { getUserById } = require("../db");
 const { JWT_SECRET } = process.env;
 
 apiRouter.use(async (req, res, next) => {
-  console.log("inside API router");
-  const prefix = "Bearer";
+  const prefix = "Bearer ";
   const auth = req.header("Authorization");
 
   if (!auth) {
@@ -17,13 +16,15 @@ apiRouter.use(async (req, res, next) => {
     const token = auth.slice(prefix.length);
 
     try {
+      console.log(token);
       const { id } = jwt.verify(token, JWT_SECRET);
-
       if (id) {
+        console.log("User Authenticated");
         req.user = await getUserById(id);
         next();
       }
     } catch ({ name, message }) {
+      console.log(message);
       next({ name, message });
     }
   } else {
@@ -34,8 +35,15 @@ apiRouter.use(async (req, res, next) => {
   }
 });
 
-apiRouter.get("/", (req, res) => {
-  res.send("In API");
+// apiRouter.get("/", (req, res) => {
+//   res.send("In API");
+// });
+
+apiRouter.use((req, res, next) => {
+  if (req.user) {
+    console.log("User is set:", req.user);
+  }
+  next();
 });
 
 const usersRouter = require("./users");
