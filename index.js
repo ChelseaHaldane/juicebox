@@ -1,9 +1,10 @@
+require("dotenv").config();
 const PORT = 3000;
 const express = require("express");
 const server = express();
 const morgan = require("morgan");
 const { client } = require("./db");
-const apiRouter = require("./api");
+const apiRouter = require("./api/index");
 
 client.connect();
 
@@ -14,6 +15,7 @@ server.listen(PORT, () => {
 server.use(morgan("dev"));
 
 server.use(express.json());
+server.use("/api", apiRouter);
 
 server.use((req, res, next) => {
   console.log("<____Body Logger START____>");
@@ -31,5 +33,3 @@ server.use("/", (req, res, next) => {
   console.log("A request was made to /");
   next();
 });
-
-server.use("/api", apiRouter);
