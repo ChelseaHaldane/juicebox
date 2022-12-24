@@ -33,3 +33,11 @@ server.use("/", (req, res, next) => {
   console.log("A request was made to /");
   next();
 });
+
+server.get("/background/:color", (req, res, next) => {
+  res.send(`
+    <body style="background: ${req.params.color};">
+      <h1>Hello World</h1>
+    </body>
+  `);
+});
